@@ -1,210 +1,183 @@
-# address_book.py
-"""AddressBook — мінімальний клас адресної книги з політиками валідації.
-
-Завдання:
-- інкапсуляція dict
-- add/change/remove/get/all/search/rename/stats
-- нормалізація телефону у міжнародний формат +XXXXXXXX...
-- політика дублікатів телефонів (allow_duplicate_phones)
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Tuple
 
-from utils import normalize_phone, validate_name
 
 def _now_iso() -> str:
-    """Повертає поточний час в ISO-форматі (UTC)."""
-    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+    return datetime.now(timezone.utc).isoformat()
 
 
 @dataclass
 class Contact:
-    """Модель контакту."""
     name: str
     phone: str
     created_at: str
     updated_at: str
 
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "phone": self.phone,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+        }
+
+    @staticmethod
+    def from_dict(data: Dict[str, Any]) -> "Contact":
+        name = str(data.get("name", "")).strip()
+        phone = str(data.get("phone", "")).strip()
+
+        created_at = str(data.get("created_at") or _now_iso())
+        updated_at = str(data.get("updated_at") or created_at)
+
+        return Contact(
+            name=name,
+            phone=phone,
+            created_at=created_at,
+            updated_at=updated_at,
+        )
+
 
 class AddressBook:
-    """Адресна книга з базовими операціями та валідацією."""
+    """Мінімальний 'дорослий' AddressBook: add/change/remove/get/search/rename/stats."""
 
     def __init__(self, *, allow_duplicate_phones: bool = False) -> None:
         self._contacts: Dict[str, Contact] = {}
         self.allow_duplicate_phones = allow_duplicate_phones
+        self.last_modified: str | None = None
         self.is_dirty: bool = False
-        self._last_modified: Optional[str] = None
 
     # -------------------------
-    # Службові методи
+    # internal helpers
     # -------------------------
 
-    def _touch(self) -> None:
-        """Позначає, що книга змінена."""
+    def _touch_modified(self) -> None:
+        self.last_modified = _now_iso()
         self.is_dirty = True
-        self._last_modified = _now_iso()
 
-    def _has_phone(self, phone: str, *, except_name: str | None = None) -> bool:
-        """Перевіряє, чи телефон вже існує."""
+    def _phone_in_use(self, phone: str, *, exclude_name: str | None = None) -> bool:
         for name, c in self._contacts.items():
-            if except_name is not None and name == except_name:
+            if exclude_name is not None and name == exclude_name:
                 continue
             if c.phone == phone:
                 return True
         return False
 
     # -------------------------
-    # Публічний API
+    # public API
     # -------------------------
 
-    def add(self, *, name: str, phone: str) -> None:
-        """Додає контакт. Підіймає ValueError/KeyError у разі проблем."""
-        clean_name = validate_name(name)
-        clean_phone = normalize_phone(phone)
+    def load_from_dict(self, data: Dict[str, Any], *, last_modified: str | None = None) -> None:
+        self._contacts.clear()
+        for name, payload in data.items():
+            if isinstance(payload, dict):
+                c = Contact.from_dict(payload)
+                # имя из ключа — приоритетнее (на случай старых форматов)
+                c.name = str(name).strip() or c.name
+                self._contacts[c.name] = c
+            else:
+                # старый формат: {"Bob": "+123..."}
+                c = Contact(
+                    name=str(name).strip(),
+                    phone=str(payload).strip(),
+                    created_at=_now_iso(),
+                    updated_at=_now_iso(),
+                )
+                self._contacts[c.name] = c
 
-        if clean_name in self._contacts:
+        self.last_modified = last_modified
+        self.is_dirty = False
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {name: c.to_dict() for name, c in self._contacts.items()}
+
+    def add(self, name: str, phone: str) -> None:
+        name = str(name).strip()
+        if not name:
+            raise ValueError("Name is empty")
+
+        if name in self._contacts:
             raise ValueError("Duplicate name")
 
-        if not self.allow_duplicate_phones and self._has_phone(clean_phone):
+        if (not self.allow_duplicate_phones) and self._phone_in_use(phone):
             raise ValueError("Duplicate phone")
 
         now = _now_iso()
-        self._contacts[clean_name] = Contact(
-            name=clean_name,
-            phone=clean_phone,
-            created_at=now,
-            updated_at=now,
-        )
-        self._touch()
+        self._contacts[name] = Contact(name=name, phone=phone, created_at=now, updated_at=now)
+        self._touch_modified()
 
-    def change(self, *, name: str, phone: str) -> None:
-        """Оновлює телефон контакту."""
-        clean_name = validate_name(name)
-        clean_phone = normalize_phone(phone)
+    def change(self, name: str, phone: str) -> None:
+        name = str(name).strip()
+        if name not in self._contacts:
+            raise KeyError(name)
 
-        if clean_name not in self._contacts:
-            raise KeyError(clean_name)
-
-        if not self.allow_duplicate_phones and self._has_phone(clean_phone, except_name=clean_name):
+        if (not self.allow_duplicate_phones) and self._phone_in_use(phone, exclude_name=name):
             raise ValueError("Duplicate phone")
 
-        c = self._contacts[clean_name]
-        c.phone = clean_phone
+        c = self._contacts[name]
+        c.phone = phone
         c.updated_at = _now_iso()
-        self._touch()
+        self._touch_modified()
 
     def remove(self, name: str) -> None:
-        """Видаляє контакт."""
-        clean_name = validate_name(name)
-        if clean_name not in self._contacts:
-            raise KeyError(clean_name)
-        del self._contacts[clean_name]
-        self._touch()
+        name = str(name).strip()
+        if name not in self._contacts:
+            raise KeyError(name)
 
-    def rename(self, *, old_name: str, new_name: str) -> None:
-        """Перейменовує контакт."""
-        old_clean = validate_name(old_name)
-        new_clean = validate_name(new_name)
+        del self._contacts[name]
+        self._touch_modified()
 
-        if old_clean not in self._contacts:
-            raise KeyError(old_clean)
-        if new_clean in self._contacts:
+    def rename(self, old_name: str, new_name: str) -> None:
+        old_name = str(old_name).strip()
+        new_name = str(new_name).strip()
+
+        if not new_name:
+            raise ValueError("Name is empty")
+
+        if old_name not in self._contacts:
+            raise KeyError(old_name)
+
+        if new_name in self._contacts:
             raise ValueError("Duplicate name")
 
-        c = self._contacts.pop(old_clean)
-        c.name = new_clean
+        c = self._contacts.pop(old_name)
+        c.name = new_name
         c.updated_at = _now_iso()
-        self._contacts[new_clean] = c
-        self._touch()
+        self._contacts[new_name] = c
+        self._touch_modified()
 
-    def get(self, name: str) -> Dict[str, str]:
-        """Повертає контакт як dict."""
-        clean_name = validate_name(name)
-        if clean_name not in self._contacts:
-            raise KeyError(clean_name)
-        c = self._contacts[clean_name]
-        return {"name": c.name, "phone": c.phone}
+    def get_record(self, name: str) -> Dict[str, Any]:
+        name = str(name).strip()
+        if name not in self._contacts:
+            raise KeyError(name)
+        return self._contacts[name].to_dict()
 
-    def all(self) -> List[Dict[str, str]]:
-        """Повертає всі контакти (відсортовано за ім'ям)."""
-        out: List[Dict[str, str]] = []
-        for name in sorted(self._contacts.keys(), key=lambda s: s.casefold()):
-            c = self._contacts[name]
-            out.append({"name": c.name, "phone": c.phone})
-        return out
+    def get_phone(self, name: str) -> str:
+        return self.get_record(name)["phone"]
 
-    def search(self, query: str) -> List[Dict[str, str]]:
-        """Пошук за ім'ям або телефоном (частковий збіг)."""
-        q = query.strip()
+    def all_records(self) -> List[Dict[str, Any]]:
+        return [self._contacts[name].to_dict() for name in sorted(self._contacts)]
+
+    def search(self, query: str) -> List[Tuple[str, str]]:
+        q = str(query).strip().casefold()
         if not q:
-            raise ValueError("Empty query")
+            raise ValueError("Query is empty")
 
-        q_fold = q.casefold()
-        out: List[Dict[str, str]] = []
-
-        for c in self._contacts.values():
-            if q_fold in c.name.casefold() or q_fold in c.phone.casefold():
-                out.append({"name": c.name, "phone": c.phone})
-
-        out.sort(key=lambda x: x["name"].casefold())
-        return out
-
-    def stats(self) -> Dict[str, str | int]:
-        """Повертає статистику."""
-        phones = {c.phone for c in self._contacts.values()}
-        last = self._last_modified or "-"
-        return {
-            "contacts_count": len(self._contacts),
-            "unique_phones_count": len(phones),
-            "last_modified": last,
-        }
-
-    # -------------------------
-    # Серіалізація для storage
-    # -------------------------
-
-    def to_dict(self) -> Dict[str, Dict[str, str]]:
-        """Перетворює книгу у dict для JSON."""
-        data: Dict[str, Dict[str, str]] = {}
+        results: List[Tuple[str, str]] = []
         for name, c in self._contacts.items():
-            data[name] = {
-                "name": c.name,
-                "phone": c.phone,
-                "created_at": c.created_at,
-                "updated_at": c.updated_at,
-            }
-        return data
+            if (q in name.casefold()) or (q in c.phone.casefold()):
+                results.append((name, c.phone))
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, Dict[str, str]], *, allow_duplicate_phones: bool = False) -> "AddressBook":
-        """Створює AddressBook з dict."""
-        book = cls(allow_duplicate_phones=allow_duplicate_phones)
-        for key, raw in data.items():
-            # Мінімальна валідація при завантаженні: ім'я — ключ
-            name = validate_name(raw.get("name", key))
-            phone = normalize_phone(raw.get("phone", ""))
-            created_at = raw.get("created_at") or _now_iso()
-            updated_at = raw.get("updated_at") or created_at
+        results.sort(key=lambda x: x[0].casefold())
+        return results
 
-            if name in book._contacts:
-                # Якщо раптом є дубль імені — беремо перший, інше ігноруємо
-                continue
-
-            if not allow_duplicate_phones and book._has_phone(phone):
-                # Дубль телефону при строгій політиці — ігноруємо
-                continue
-
-            book._contacts[name] = Contact(
-                name=name,
-                phone=phone,
-                created_at=created_at,
-                updated_at=updated_at,
-            )
-
-        book.is_dirty = False
-        book._last_modified = None
-        return book
+    def stats(self) -> Dict[str, Any]:
+        phones = [c.phone for c in self._contacts.values()]
+        return {
+            "total_contacts": len(self._contacts),
+            "unique_phones": len(set(phones)),
+            "last_modified": self.last_modified,
+            "allow_duplicate_phones": self.allow_duplicate_phones,
+        }

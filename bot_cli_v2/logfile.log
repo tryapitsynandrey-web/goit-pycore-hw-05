@@ -7,3 +7,113 @@
 2026-01-17 18:19:48,792 | INFO | Bot started. contacts=4
 2026-01-17 18:22:41,461 | INFO | Bot started. contacts=4
 2026-01-17 18:24:18,931 | INFO | Bot exited normally.
+2026-01-17 18:30:09,682 | INFO | Bot started. contacts=4
+2026-01-17 18:30:28,005 | INFO | Bot exited normally.
+2026-01-17 18:38:53 | INFO | Bot started
+2026-01-17 18:39:02 | INFO | Command: help | Args: []
+2026-01-17 18:39:10 | INFO | Command: add | Args: ['Bill', '47385746573']
+2026-01-17 18:39:10 | INFO | Contact added: Bill
+2026-01-17 18:39:12 | INFO | Command: all | Args: []
+2026-01-17 18:39:59 | INFO | Bot started
+2026-01-17 18:40:05 | INFO | Bot started
+2026-01-17 18:40:09 | INFO | Command: rgerhg | Args: []
+2026-01-17 18:40:09 | WARNING | Invalid command: rgerhg
+2026-01-17 18:40:10 | INFO | Command: erg | Args: []
+2026-01-17 18:40:10 | WARNING | Invalid command: erg
+2026-01-17 18:40:11 | INFO | Command: erger | Args: []
+2026-01-17 18:40:11 | WARNING | Invalid command: erger
+2026-01-17 18:40:12 | INFO | Command: ergerg | Args: []
+2026-01-17 18:40:12 | WARNING | Invalid command: ergerg
+2026-01-17 18:40:12 | INFO | Command: egeger | Args: []
+2026-01-17 18:40:12 | WARNING | Invalid command: egeger
+2026-01-17 18:40:13 | INFO | Command: ergerger | Args: []
+2026-01-17 18:40:13 | WARNING | Invalid command: ergerger
+2026-01-17 18:40:14 | INFO | Command: ergergerger | Args: []
+2026-01-17 18:40:14 | WARNING | Invalid command: ergergerger
+2026-01-17 18:40:15 | INFO | Command: egergerger | Args: []
+2026-01-17 18:40:15 | WARNING | Invalid command: egergerger
+2026-01-17 18:40:16 | INFO | Command: ergergerg | Args: []
+2026-01-17 18:40:16 | WARNING | Invalid command: ergergerg
+2026-01-17 18:40:17 | INFO | Command: ergerger | Args: []
+2026-01-17 18:40:17 | WARNING | Invalid command: ergerger
+2026-01-17 18:40:17 | INFO | Command: ergergerg | Args: []
+2026-01-17 18:40:17 | WARNING | Invalid command: ergergerg
+2026-01-17 18:40:18 | INFO | Command: ergergerg | Args: []
+2026-01-17 18:40:18 | WARNING | Invalid command: ergergerg
+2026-01-17 18:40:19 | INFO | Command: ergergergdb | Args: []
+2026-01-17 18:40:19 | WARNING | Invalid command: ergergergdb
+2026-01-17 18:40:20 | INFO | Command: dfbdfhdfh | Args: []
+2026-01-17 18:40:20 | WARNING | Invalid command: dfbdfhdfh
+2026-01-17 18:40:21 | INFO | Command: erherherthr | Args: []
+2026-01-17 18:40:21 | WARNING | Invalid command: erherherthr
+2026-01-17 18:40:22 | INFO | Command: dhergherg | Args: []
+2026-01-17 18:40:22 | WARNING | Invalid command: dhergherg
+2026-01-17 18:40:23 | INFO | Command: erghdfgdfherdg | Args: []
+2026-01-17 18:40:23 | WARNING | Invalid command: erghdfgdfherdg
+2026-01-17 18:40:24 | INFO | Command: dfherhgerhdfh | Args: []
+2026-01-17 18:40:24 | WARNING | Invalid command: dfherhgerhdfh
+2026-01-17 18:40:25 | INFO | Command: ergherhdgfb | Args: []
+2026-01-17 18:40:25 | WARNING | Invalid command: ergherhdgfb
+2026-01-17 18:56:18,885 | INFO | Bot started
+2026-01-17 18:56:18,886 | INFO | Welcome message shown
+2026-01-17 18:56:22,562 | INFO | Command: help | args=[]
+2026-01-17 18:56:28,231 | WARNING | Invalid command: swdefwesf
+2026-01-17 18:56:29,069 | WARNING | Invalid command: asfdaef
+2026-01-17 18:56:29,968 | WARNING | Invalid command: advasdfaw
+2026-01-17 18:56:30,758 | WARNING | Invalid command: asdvfawsefaw
+2026-01-17 18:56:31,649 | WARNING | Invalid command: advfaedfvaew
+2026-01-17 18:56:32,687 | WARNING | Invalid command: awevfawefawef
+2026-01-17 18:56:34,054 | WARNING | Invalid command: asfawevfaervgawevf
+2026-01-17 18:56:35,404 | WARNING | Invalid command: awfeawefawefwaqefa
+2026-01-17 18:56:44,818 | INFO | Command: add | args=['Jill', '75648395637']
+2026-01-17 18:56:44,821 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 18:56:46,653 | INFO | Command: all | args=[]
+2026-01-17 18:57:08,468 | INFO | Command: remove | args=['Jill']
+2026-01-17 18:57:10,295 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 18:57:16,823 | INFO | Command: all | args=[]
+2026-01-17 18:57:31,187 | INFO | Command: remove | args=['Jill']
+2026-01-17 18:57:33,775 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 18:57:35,692 | INFO | Command: all | args=[]
+2026-01-17 18:57:47,150 | INFO | Command: stats | args=[]
+2026-01-17 19:08:09,696 | INFO | Bot started
+2026-01-17 19:08:09,696 | INFO | Welcome message shown
+2026-01-17 19:08:15,877 | WARNING | Invalid command: фдд
+2026-01-17 19:08:19,941 | INFO | Command: help | args=[]
+2026-01-17 19:08:23,025 | INFO | Command: all | args=[]
+2026-01-17 19:08:34,910 | INFO | Command: all | args=[]
+2026-01-17 19:08:45,308 | INFO | Command: add | args=['Bill', '657483746593']
+2026-01-17 19:08:45,311 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 19:08:54,228 | INFO | Command: all | args=[]
+2026-01-17 19:09:05,767 | INFO | Command: all | args=[]
+2026-01-17 19:09:14,857 | INFO | Command: all | args=['addreses']
+2026-01-17 19:09:16,805 | INFO | Command: all | args=[]
+2026-01-17 19:09:18,182 | INFO | Command: all | args=[]
+2026-01-17 19:09:30,651 | INFO | Command: change | args=['Bill', '65749375648']
+2026-01-17 19:09:30,654 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 19:09:43,775 | INFO | Command: phone | args=['Bill']
+2026-01-17 19:32:25,745 | INFO | Bot started
+2026-01-17 19:32:25,745 | INFO | Welcome message shown
+2026-01-17 19:32:32,724 | INFO | Command: hello | args=[]
+2026-01-17 19:32:35,291 | INFO | Command: all | args=[]
+2026-01-17 19:33:00,881 | INFO | Command: add | args=['Masha', '75648394756']
+2026-01-17 19:33:00,885 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 19:33:09,418 | INFO | Command: change | args=['Masha', '857826594723']
+2026-01-17 19:33:09,420 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 19:33:14,403 | INFO | Command: all | args=[]
+2026-01-17 19:33:24,928 | INFO | Command: help | args=[]
+2026-01-17 19:33:34,014 | INFO | Command: remove | args=['Masha']
+2026-01-17 19:33:36,703 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 19:33:39,172 | INFO | Command: all | args=[]
+2026-01-17 19:33:49,731 | INFO | Command: remove | args=['Andrew']
+2026-01-17 19:33:52,090 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 19:34:00,459 | INFO | Command: remove | args=['Billy']
+2026-01-17 19:34:03,540 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 19:34:11,417 | INFO | Command: remove | args=['Bony']
+2026-01-17 19:34:13,378 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 19:34:19,221 | INFO | Command: remove | args=['John']
+2026-01-17 19:34:20,831 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 19:34:30,364 | INFO | Command: add | args=['John', '4729574837']
+2026-01-17 19:34:30,367 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 19:34:33,279 | INFO | Command: all | args=[]
+2026-01-17 19:34:43,941 | INFO | Bot exited by user command
+2026-01-17 19:34:43,941 | INFO | Bot finished
