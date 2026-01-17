@@ -6,21 +6,31 @@ from typing import Any, Dict, Iterable, List, Tuple
 
 
 # =========================
-# PHONE NORMALIZATION
+# НОРМАЛІЗАЦІЯ ТЕЛЕФОНУ
 # =========================
 
 def normalize_phone(raw_phone: str) -> str:
-    """Нормалізує телефон до єдиного формату (+XXXXXXXX)."""
+    """Нормалізує телефон до єдиного канонічного формату.
 
+    Правила:
+    - прибираємо пробіли/дужки/дефіси/тощо
+    - дозволяємо '+' лише на початку
+    - '00XXXXXXXX' -> '+XXXXXXXX'
+    - результат: '+' + лише цифри
+    - перевірка довжини: 7..15 цифр (E.164)
+    """
     phone = raw_phone.strip()
     if not phone:
         raise ValueError("Phone is empty")
 
+    # Залишаємо тільки цифри та '+'
     phone = re.sub(r"[^\d+]", "", phone)
 
+    # Якщо '+' зустрічається не на початку — це помилка
     if "+" in phone[1:]:
         raise ValueError("Plus sign must be at the beginning")
 
+    # 00XXXXXXXX -> +XXXXXXXX
     if phone.startswith("00"):
         phone = "+" + phone[2:]
 
@@ -33,6 +43,7 @@ def normalize_phone(raw_phone: str) -> str:
     if not digits.isdigit():
         raise ValueError("Phone must contain digits only")
 
+    # Мін/макс довжина за E.164 (до 15 цифр після '+')
     if len(digits) < 7 or len(digits) > 15:
         raise ValueError("Phone length must be between 7 and 15 digits")
 
@@ -40,10 +51,11 @@ def normalize_phone(raw_phone: str) -> str:
 
 
 # =========================
-# FORMATTING HELPERS
+# ФОРМАТУВАННЯ ВИВОДУ
 # =========================
 
 def _fmt_dt(value: Any) -> str:
+    """Форматує ISO-дату в 'YYYY-MM-DD HH:MM'."""
     if not value:
         return "-"
     try:
@@ -54,13 +66,10 @@ def _fmt_dt(value: Any) -> str:
 
 
 def format_contacts_table(records: Iterable[Dict[str, Any]]) -> str:
-    """Формує красиву ASCII-таблицю контактів."""
-
+    """Завжди рендерить контакти як ASCII-таблицю (стабільний вивід)."""
     rows: List[Tuple[str, str, str, str]] = []
 
     for r in records:
-        if not isinstance(r, dict):
-            continue
         name = str(r.get("name", "")).strip()
         phone = str(r.get("phone", "")).strip()
         created = _fmt_dt(r.get("created_at"))
@@ -77,36 +86,34 @@ def format_contacts_table(records: Iterable[Dict[str, Any]]) -> str:
     w_created = max(len(headers[2]), *(len(x[2]) for x in rows))
     w_updated = max(len(headers[3]), *(len(x[3]) for x in rows))
 
-    def hline(left: str, mid: str, right: str) -> str:
+    def sep() -> str:
         return (
-            left
-            + "─" * (w_name + 2) + mid
-            + "─" * (w_phone + 2) + mid
-            + "─" * (w_created + 2) + mid
-            + "─" * (w_updated + 2)
-            + right
+            "+"
+            + "-" * (w_name + 2)
+            + "+"
+            + "-" * (w_phone + 2)
+            + "+"
+            + "-" * (w_created + 2)
+            + "+"
+            + "-" * (w_updated + 2)
+            + "+"
         )
 
-    top = hline("┌", "┬", "┐")
-    sep = hline("├", "┼", "┤")
-    bottom = hline("└", "┴", "┘")
-
-    header_row = (
-        f"│ {headers[0]:<{w_name}} │ {headers[1]:<{w_phone}} │ "
-        f"{headers[2]:<{w_created}} │ {headers[3]:<{w_updated}} │"
+    header_line = (
+        f"| {headers[0]:<{w_name}} | {headers[1]:<{w_phone}} | "
+        f"{headers[2]:<{w_created}} | {headers[3]:<{w_updated}} |"
     )
 
-    body_rows = [
-        f"│ {n:<{w_name}} │ {p:<{w_phone}} │ {c:<{w_created}} │ {u:<{w_updated}} │"
-        for n, p, c, u in rows
+    body_lines = [
+        f"| {name:<{w_name}} | {phone:<{w_phone}} | {created:<{w_created}} | {updated:<{w_updated}} |"
+        for name, phone, created, updated in rows
     ]
 
-    return "\n".join([top, header_row, sep, *body_rows, bottom])
+    return "\n".join([sep(), header_line, sep(), *body_lines, sep()])
 
 
 def format_stats_box(stats: Dict[str, Any]) -> str:
-    """Формує красивий блок статистики."""
-
+    """Рендерить статистику як ASCII-бокс (читабельний вивід)."""
     lines = [
         ("total_contacts", stats.get("total_contacts", 0)),
         ("unique_phones", stats.get("unique_phones", 0)),
@@ -114,17 +121,16 @@ def format_stats_box(stats: Dict[str, Any]) -> str:
         ("allow_duplicate_phones", stats.get("allow_duplicate_phones", False)),
     ]
 
-    title = "📊 AddressBook stats"
+    title = "AddressBook stats"
     w_key = max(len(k) for k, _ in lines)
     w_val = max(len(str(v)) for _, v in lines)
-    width = max(len(title), w_key + w_val + 5)
+    inner_w = max(len(title), w_key + 3 + w_val)
 
-    top = "┌" + "─" * (width + 2) + "┐"
-    mid = "├" + "─" * (width + 2) + "┤"
-    bot = "└" + "─" * (width + 2) + "┘"
+    top = "+" + "-" * (inner_w + 2) + "+"
+    mid = "+" + "-" * (inner_w + 2) + "+"
 
-    out = [top, f"│ {title:<{width}} │", mid]
+    out = [top, f"| {title:<{inner_w}} |", mid]
     for k, v in lines:
-        out.append(f"│ {k:<{w_key}} : {str(v):<{width - (w_key + 3)}} │")
-    out.append(bot)
+        out.append(f"| {k:<{w_key}} : {str(v):<{inner_w - (w_key + 3)}} |")
+    out.append(top)
     return "\n".join(out)

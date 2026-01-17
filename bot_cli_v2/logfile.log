@@ -117,3 +117,26 @@
 2026-01-17 19:34:33,279 | INFO | Command: all | args=[]
 2026-01-17 19:34:43,941 | INFO | Bot exited by user command
 2026-01-17 19:34:43,941 | INFO | Bot finished
+2026-01-17 19:56:12,558 | INFO | Bot started
+2026-01-17 19:56:12,559 | INFO | Welcome message shown
+2026-01-17 19:56:23,130 | INFO | Bot exited by user command
+2026-01-17 19:56:23,131 | INFO | Bot finished
+2026-01-17 19:56:25,954 | INFO | Bot started
+2026-01-17 19:56:25,955 | INFO | Welcome message shown
+2026-01-17 19:56:31,875 | INFO | Command: hello | args=[]
+2026-01-17 19:56:40,789 | INFO | Command: add | args=['Max', '7584736456']
+2026-01-17 19:56:40,793 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 19:56:43,998 | INFO | Command: all | args=[]
+2026-01-17 19:56:47,319 | INFO | Command: all | args=[]
+2026-01-17 19:56:49,995 | INFO | Command: all | args=[]
+2026-01-17 20:10:04,536 | INFO | Bot started
+2026-01-17 20:10:04,536 | INFO | Welcome message shown
+2026-01-17 20:10:13,574 | INFO | Command: hello | args=[]
+2026-01-17 20:10:14,893 | INFO | Command: all | args=[]
+2026-01-17 20:10:23,881 | INFO | Command: add | args=['Bill', '85746395748']
+2026-01-17 20:10:23,884 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 20:10:34,248 | INFO | Command: add | args=['Max', '47592758395673']
+2026-01-17 20:10:34,250 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 20:10:42,180 | INFO | Command: add | args=['John', '984057393759347']
+2026-01-17 20:10:42,182 | INFO | Contacts saved to JSON (atomic)
+2026-01-17 20:10:44,817 | INFO | Command: all | args=[]

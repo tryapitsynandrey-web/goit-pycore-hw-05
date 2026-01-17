@@ -71,15 +71,15 @@ def get_empty_input_message(empty_count: int) -> str:
 
 def require_record(book: AddressBook, name: str) -> dict:
     """Повертає record контакту або кидає KeyError (щоб декоратор відпрацював)."""
-    record = book.get_record(name)  # KeyError якщо немає
+    record = book.get_record(name)
     if not isinstance(record, dict):
         raise KeyError(name)
     return record
 
 
 def extract_records_from_book(book: AddressBook) -> List[dict]:
-    """Повертає список записів для красивого виводу (табличкою)."""
-    data = book.to_dict()  # очікуємо: {name: {name, phone, created_at, updated_at}}
+    """Повертає список записів для виводу (табличкою)."""
+    data = book.to_dict()
     if not isinstance(data, dict):
         return []
 
@@ -90,6 +90,7 @@ def extract_records_from_book(book: AddressBook) -> List[dict]:
             copy_rec = dict(rec)
             copy_rec.setdefault("name", name)
             records.append(copy_rec)
+
     return records
 
 
@@ -135,16 +136,16 @@ def input_error(
 @input_error(value_error_messages=ENTER_NAME_AND_PHONE_MESSAGES)
 def add_contact(args: List[str], book: AddressBook) -> str:
     """add <name> <phone>"""
-    name, raw_phone = args  # ValueError якщо аргументів не 2
+    name, raw_phone = args
     phone = normalize_phone(raw_phone)
 
     try:
         book.add(name, phone)
     except ValueError as e:
         msg = str(e).lower()
-        if "name" in msg:
+        if "duplicate name" in msg:
             return pick_message(DUPLICATE_NAME_MESSAGES)
-        if "phone" in msg:
+        if "duplicate phone" in msg:
             return pick_message(DUPLICATE_PHONE_MESSAGES)
         raise
 
@@ -157,13 +158,13 @@ def change_contact(args: List[str], book: AddressBook) -> str:
     name, raw_phone = args
     phone = normalize_phone(raw_phone)
 
-    _ = require_record(book, name)  # KeyError -> декоратор
+    _ = require_record(book, name)
 
     try:
         book.change(name, phone)
     except ValueError as e:
         msg = str(e).lower()
-        if "phone" in msg:
+        if "duplicate phone" in msg:
             return pick_message(DUPLICATE_PHONE_MESSAGES)
         raise
 
@@ -173,21 +174,18 @@ def change_contact(args: List[str], book: AddressBook) -> str:
 @input_error(index_error_messages=ENTER_NAME_MESSAGES, key_error_messages=("Contact not found.",))
 def show_phone(args: List[str], book: AddressBook) -> str:
     """phone <name>"""
-    name = args[0]  # IndexError якщо немає імені
+    name = args[0]
     record = require_record(book, name)
+    record.setdefault("name", name)
     return format_contacts_table([record])
 
 
 @input_error()
 def show_all(_args: List[str], book: AddressBook) -> str:
     """all"""
-    if not book.to_dict():
-        return pick_message(NO_CONTACTS_MESSAGES)
-
     records = extract_records_from_book(book)
     if not records:
         return pick_message(NO_CONTACTS_MESSAGES)
-
     return format_contacts_table(records)
 
 
@@ -195,28 +193,20 @@ def show_all(_args: List[str], book: AddressBook) -> str:
 def search_contact(args: List[str], book: AddressBook) -> str:
     """search <query>"""
     query = " ".join(args).strip()
-    if not query:
-        raise ValueError("empty query")
-
     results = book.search(query)
 
-    # Підтримуємо 2 варіанти: [(name, phone)] або [dict-record]
-    records: List[dict] = []
+    if not results:
+        return "No matches found."
 
-    if isinstance(results, list):
-        for item in results:
-            if isinstance(item, dict):
-                records.append(dict(item))
-            elif isinstance(item, (tuple, list)) and len(item) >= 1:
-                name = str(item[0]).strip()
-                if name:
-                    try:
-                        records.append(require_record(book, name))
-                    except KeyError:
-                        continue
+    records: List[dict] = []
+    for rec in results:
+        if isinstance(rec, dict):
+            copy_rec = dict(rec)
+            copy_rec.setdefault("name", str(copy_rec.get("name", "")).strip())
+            records.append(copy_rec)
 
     if not records:
-        return "🔎🙂 No matches found. =)"
+        return "No matches found."
 
     return format_contacts_table(records)
 
@@ -226,15 +216,15 @@ def search_contact(args: List[str], book: AddressBook) -> str:
     key_error_messages=("Contact not found.",),
 )
 def rename_contact(args: List[str], book: AddressBook) -> str:
-    """rename <old_name> <new_name>"""
-    old_name, new_name = args  # ValueError якщо не 2
-    _ = require_record(book, old_name)  # KeyError -> декоратор
+    """rename <old> <new>"""
+    old_name, new_name = args
+    _ = require_record(book, old_name)
 
     try:
         book.rename(old_name, new_name)
     except ValueError as e:
         msg = str(e).lower()
-        if "duplicate name" in msg or "name" in msg:
+        if "duplicate name" in msg:
             return pick_message(DUPLICATE_NAME_MESSAGES)
         raise
 
@@ -245,7 +235,7 @@ def rename_contact(args: List[str], book: AddressBook) -> str:
 def remove_contact(args: List[str], book: AddressBook) -> str:
     """remove <name> / delete <name>"""
     name = args[0]
-    _ = require_record(book, name)  # KeyError -> декоратор
+    _ = require_record(book, name)
 
     confirm_prompt = pick_message(REMOVE_CONFIRM_MESSAGES)
     answer = input(confirm_prompt).strip().upper()
@@ -350,6 +340,7 @@ def main() -> None:
         result = handler(args, book)
         print(result)
 
+        # Автозбереження після команд, що змінюють дані
         if command in ("add", "change", "remove", "delete", "rename"):
             save_contacts_json(contacts_path, book.to_dict(), book.last_modified)
             logging.info("Contacts saved to JSON (atomic)")
