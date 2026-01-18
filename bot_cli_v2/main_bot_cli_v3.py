@@ -48,7 +48,6 @@ def setup_logging(base_dir: Path) -> None:
 # HELPERS
 # =========================
 
-
 def pick_message(messages: Sequence[str]) -> str:
     """Повертає випадкове повідомлення з набору."""
     return random.choice(messages)
@@ -320,7 +319,6 @@ def main() -> None:
             if empty_input_count % AUTO_HELP_EVERY_EMPTY_INPUTS == 0:
                 print()
                 print(HELP_MESSAGE)
-
             continue
 
         empty_input_count = 0
