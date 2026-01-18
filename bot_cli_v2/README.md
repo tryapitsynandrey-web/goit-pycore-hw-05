@@ -168,6 +168,63 @@ pip install -r requirements.txt
 
 ---
 
+## 🛠️ Quick Usage Examples
+
+CLI examples (quoted names supported):
+
+- Add a contact:
+
+  python3 main_bot_cli_v3.py
+  add "John Doe" "+380501234567"
+
+- Change phone:
+
+  change "John Doe" "+380501234568"
+
+- Show a contact's phone:
+
+  phone "John Doe"
+
+- Export to CSV:
+
+  export backup.csv
+
+- Import from CSV (transactional undo):
+
+  import backup.csv
+
+  # The import is recorded as a single operation for undo.
+
+Command-line flags:
+
+- `--data-dir PATH` — change where `contacts.json` and logs live.
+- `--no-backups` — disable automatic JSON backups.
+- `--allow-duplicates` — allow duplicate phone numbers.
+- Auto-help: after 6 consecutive empty inputs or 6 invalid commands the `help` menu is shown automatically (configurable via `settings.py`).
+
+## 🔗 HTTP API (optional)
+
+If you run the optional FastAPI server (`run_api.py`), a simple HTTP API is available.
+
+Example (create contact):
+
+curl -X POST "http://127.0.0.1:8000/contacts" -H "Content-Type: application/json" -d '{"name":"Alice","phone":"+15551234567"}'
+
+Example (fuzzy search):
+
+curl "http://127.0.0.1:8000/fsearch?q=Al"
+
+Birthdays API:
+
+- List upcoming birthdays for next 7 days (default):
+
+  curl "http://127.0.0.1:8000/birthdays"
+
+- List upcoming birthdays next N days:
+
+  curl "http://127.0.0.1:8000/birthdays?days=30"
+
+
 ## 🎯 Project Purpose
 
 This project was built as:
@@ -185,4 +242,73 @@ This project was built as:
 - CSV import/export
 - Command autocomplete
 - CLI interface via `argparse` or `cmd`
+
+## ⏰ Reminders & Scheduling
+
+You can export upcoming birthdays (default next 7 days) and schedule it using cron.
+
+Quick one-liner (cron):
+
+```bash
+# nightly at 01:00
+0 1 * * * python3 -c "from reminder import export_reminders; export_reminders('/path/to/project', '/path/to/reminders.csv', days=7)"
+```
+
+Or use the provided runner script:
+
+```bash
+# export to CSV
+bin/run_reminders.py --data-dir /path/to/project --out /tmp/reminders.csv --days 7
+
+# send via SMTP (requires environment variables)
+bin/run_reminders.py --data-dir /path/to/project --send-email --days 7
+```
+
+SMTP environment variables used when sending email:
+
+- `SMTP_SERVER` (e.g. smtp.gmail.com)
+- `SMTP_PORT` (e.g. 587)
+- `SMTP_USER`
+- `SMTP_PASS`
+- `SMTP_FROM` (from address)
+- `SMTP_TO` (comma-separated recipients)
+
+Note: storing SMTP credentials in environment variables is simple but not the most secure option; consider a secrets manager for production.
+
+### systemd example
+
+If you use `systemd` you can run the reminder nightly with a unit + timer. Example files (place under `/etc/systemd/system/`):
+
+- `/etc/systemd/system/bot-reminders.service`
+
+```
+[Unit]
+Description=Export AddressBook upcoming birthdays
+
+[Service]
+Type=oneshot
+WorkingDirectory=/path/to/project
+ExecStart=/usr/bin/env python3 bin/run_reminders.py --data-dir /path/to/project --out /var/opt/reminders.csv --days 7
+```
+
+- `/etc/systemd/system/bot-reminders.timer`
+
+```
+[Unit]
+Description=Run bot reminders daily
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+```
+
+Enable and start the timer:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now bot-reminders.timer
+```
 

@@ -2,11 +2,13 @@ from __future__ import annotations
 
 from typing import Tuple
 
+from settings import SETTINGS
+
 # =========================
 # ТЕКСТОВІ ПОВІДОМЛЕННЯ (UX)
 # =========================
 
-AUTO_HELP_EVERY_EMPTY_INPUTS: int = 6
+AUTO_HELP_EVERY_EMPTY_INPUTS: int = getattr(SETTINGS, "auto_help_every_empty_inputs", 6)
 
 WELCOME_MESSAGES: Tuple[str, ...] = (
     "👋🙂 Welcome to the assistant bot!\nThis tool helps you manage your contacts.\nType 'help' to see commands. =)",
@@ -47,6 +49,9 @@ HELP_MESSAGE: str = (
     "├──────────────────────────────┬───────────────────────────────┤\n"
     "│ add <name> <phone>           │ Add a new contact ➕🙂          │\n"
     "│ change <name> <phone>        │ Update contact phone ✏️🙂       │\n"
+    "│ setbday <name> <YYYY-MM-DD>  │ Set contact birthday 🎂🙂       │\n"
+    "│ setnote <name> <note>        │ Add/replace contact note 📝🙂    │\n"
+    "│ clearnote <name>             │ Clear contact note 🧹🙂         │\n"
     "│ phone <name>                 │ Show phone by name 📞🙂        │\n"
     "│ all                          │ Show all contacts 📋🙂         │\n"
     "│ remove <name>                │ Remove contact (confirm) 🗑️🙂  │\n"

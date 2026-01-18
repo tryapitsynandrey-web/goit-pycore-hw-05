@@ -11,7 +11,7 @@ def test_validate_name_empty():
     except ValueError:
         assert True
     else:
-        assert False
+        raise AssertionError()
 
 
 def test_normalize_phone_plus_kept():

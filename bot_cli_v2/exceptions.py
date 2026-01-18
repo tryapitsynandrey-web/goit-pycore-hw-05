@@ -17,5 +17,5 @@ class DuplicatePhoneError(AddressBookError):
     """Телефон вже використовується."""
 
 
-class ValidationError(AddressBookError):
+class ValidationError(ValueError, AddressBookError):
     """Помилка валідації даних."""

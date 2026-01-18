@@ -1,1 +1,4 @@
 colorama>=0.4.6
+fastapi>=0.95.0
+uvicorn>=0.22.0
+rapidfuzz>=3.0.0

@@ -1,0 +1,4 @@
+[line-length]
+value = 88
+extend-ignore = ["RUF001", "RUF002", "RUF003"]
+exclude = [".git", "__pycache__", "build", "dist"]

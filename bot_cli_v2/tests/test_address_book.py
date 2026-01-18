@@ -16,7 +16,7 @@ def test_duplicate_name():
     except DuplicateNameError:
         assert True
     else:
-        assert False
+        raise AssertionError()
 
 
 def test_duplicate_phone_blocked():
@@ -27,7 +27,7 @@ def test_duplicate_phone_blocked():
     except DuplicatePhoneError:
         assert True
     else:
-        assert False
+        raise AssertionError()
 
 
 def test_remove_not_found():
@@ -37,4 +37,4 @@ def test_remove_not_found():
     except ContactNotFoundError:
         assert True
     else:
-        assert False
+        raise AssertionError()
